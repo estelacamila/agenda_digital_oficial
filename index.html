@@ -1,224 +1,140 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<title>📅 Agenda Digital</title>
-<script src="https://unpkg.com/@supabase/supabase-js"></script>
-<style>
-body {
-  background: #f0f2f5;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  display: flex;
-  justify-content: center;
-  padding: 30px 15px;
-}
-.container {
-  background: #fff;
-  border-radius: 15px;
-  padding: 25px 30px;
-  box-shadow: 0 6px 25px rgba(0,0,0,0.1);
-  width: 100%;
-  max-width: 500px;
-}
-h1 {
-  text-align: center;
-  margin-bottom: 25px;
-  color: #333;
-  font-size: 1.8rem;
-}
-input, button {
-  width: 100%;
-  padding: 12px 15px;
-  font-size: 1rem;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  box-sizing: border-box;
-}
-input:focus { outline: none; border-color: #4CAF50; }
-button {
-  background-color: #4CAF50;
-  color: #fff;
-  border: none;
-  font-weight: bold;
-  cursor: pointer;
-  transition: 0.3s;
-  margin-top: 20px;
-}
-button:hover { background-color: #45a049; }
-
-form { display: flex; flex-direction: column; gap: 15px; margin-bottom: 30px; }
-#quadro-horarios { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 5px; }
-.horario { flex: 1 0 30%; text-align: center; padding: 10px 12px; border-radius: 8px; cursor: pointer; background: #d4f7d4; color: #333; border: 1px solid #4CAF50; font-weight: 600; transition: 0.2s; }
-.horario.ocupado { background: #f7d4d4; border-color: #e74c3c; cursor: not-allowed; color: #999; }
-.horario.selecionado { background: #4CAF50; color: #fff; }
-
-h2 { margin-bottom: 15px; color: #333; font-size: 1.5rem; border-bottom: 1px solid #ddd; padding-bottom: 5px; }
-ul { list-style: none; padding: 0; margin: 0; }
-.dia { background: #eafaf1; color: #2e7d32; font-weight: bold; padding: 8px 12px; border-radius: 8px; margin-top: 20px; font-size: 1.1rem; }
-.horario-item { display: flex; justify-content: space-between; align-items: center; background: #f9f9f9; padding: 10px 12px; margin-top: 8px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); font-size: 0.95rem; transition: 0.2s; }
-.horario-item:hover { background: #f1f1f1; }
-.horario-item span { font-weight: 600; color: #333; flex-grow: 1; }
-.horario-item button { border: none; padding: 6px; border-radius: 12px; cursor: pointer; transition: all 0.2s ease; width: 36px; height: 36px; display: flex; justify-content: center; align-items: center; }
-.btn-lixeira { background: #ff6b6b; color: #fff; }
-.btn-lapis { background: #4CAF50; color: #fff; }
-.horario-item-buttons { display: flex; gap: 6px; }
-</style>
+  <meta charset="UTF-8">
+  <title>Login - Agenda Digital</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Roboto', sans-serif; }
+    body {
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #f0f2f5;
+    }
+    .login-container {
+      background: #fff;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      width: 360px;
+      padding: 40px 30px;
+      text-align: center;
+      position: relative;
+    }
+    .avatar {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 20px;
+      background: url('https://cdn-icons-png.flaticon.com/512/149/149071.png') no-repeat center/cover;
+      border-radius: 50%;
+    }
+    h2 {
+      margin-bottom: 25px;
+      color: #333;
+    }
+    .form-group {
+      position: relative;
+      margin-bottom: 20px;
+      text-align: left;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 12px 40px 12px 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+    .form-group input:focus {
+      border-color: #4CAF50;
+      outline: none;
+    }
+    .form-group .icon {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #999;
+      font-size: 18px;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      background-color: #4CAF50;
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+      font-size: 1rem;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+  </style>
 </head>
 <body>
-<div class="container">
-  <h1>📅 Agenda Digital</h1>
-  <input type="text" id="nome" readonly />
-  <form id="form-agenda">
-    <input type="date" id="data" required />
-    <input type="hidden" id="horario" required />
-    <div id="quadro-horarios"></div>
-    <button type="submit">Agendar</button>
-  </form>
+  <div class="login-container">
+    <div class="avatar"></div>
+    <h2>Login Agenda</h2>
 
-  <h2>Agendamentos</h2>
-  <ul id="lista"></ul>
-</div>
+    <form id="form-cliente">
+      <div class="form-group">
+        <input type="text" id="nome-cliente" placeholder="Nome completo" required>
+        <span class="icon">👤</span>
+      </div>
+      <div class="form-group">
+        <input type="text" id="numero-cliente" placeholder="Número de WhatsApp" required>
+        <span class="icon">📞</span>
+      </div>
+      <button type="submit">Entrar</button>
+    </form>
 
-<script>
-const SUPABASE_URL = "https://zlifgtznogdejoibzmpu.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpsaWZndHpub2dkZWpvaWJ6bXB1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkzNTQyMTgsImV4cCI6MjA3NDkzMDIxOH0.Xn4SvzKEy5SPVuObgWJK6BbAzw5twCtUyrcO4sg9pPM";
-const { createClient } = supabase;
-const client = createClient(SUPABASE_URL, SUPABASE_KEY);
+    <form id="form-admin" style="margin-top:20px;">
+      <div class="form-group">
+        <input type="text" id="nome-admin" placeholder="Nome do Admin" required>
+        <span class="icon">👤</span>
+      </div>
+      <div class="form-group">
+        <input type="password" id="senha-admin" placeholder="Senha" required>
+        <span class="icon">🔒</span>
+      </div>
+      <button type="submit">Entrar como Admin</button>
+    </form>
+  </div>
 
-const nomeInput = document.getElementById("nome");
-const dataInput = document.getElementById("data");
-const horarioInput = document.getElementById("horario");
-const quadro = document.getElementById("quadro-horarios");
-const form = document.getElementById("form-agenda");
-const lista = document.getElementById("lista");
+  <script>
+    // Login Cliente
+    const formCliente = document.getElementById('form-cliente');
+    formCliente.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const nome = document.getElementById('nome-cliente').value.trim();
+      const numero = document.getElementById('numero-cliente').value.trim();
+      if(!nome || !numero) return alert("Preencha todos os campos.");
+      
+      sessionStorage.setItem('usuarioTipo', 'cliente');
+      sessionStorage.setItem('usuarioNome', nome);
+      sessionStorage.setItem('usuarioNumero', numero);
 
-const nomeUsuario = localStorage.getItem("nome");
-const tipoUsuario = localStorage.getItem("tipoUsuario");
-nomeInput.value = nomeUsuario;
-
-const horariosPadrao = ["09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00"];
-let horarioSelecionado = null;
-let agendamentoEditando = null;
-
-// Funções: atualizarQuadro, carregarAgendamentos, submit form
-async function atualizarQuadro() {
-  const dataEscolhida = dataInput.value;
-  if(!dataEscolhida){ quadro.innerHTML=""; return; }
-
-  const { data: agendamentos } = await client
-    .from("agendamentos")
-    .select("*")
-    .gte("horario", dataEscolhida+"T00:00")
-    .lt("horario", dataEscolhida+"T23:59");
-
-  quadro.innerHTML="";
-  const ocupados = agendamentos.map(a=>{
-    const dt = new Date(a.horario);
-    return dt.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit', hour12:false});
-  });
-
-  horariosPadrao.forEach(h=>{
-    const div = document.createElement("div");
-    div.textContent = h;
-    div.classList.add("horario");
-    if(ocupados.includes(h)) div.classList.add("ocupado");
-    else div.addEventListener("click",()=>{
-      const prev = quadro.querySelector(".selecionado");
-      if(prev) prev.classList.remove("selecionado");
-      div.classList.add("selecionado");
-      horarioSelecionado = h;
-      const [ano,mes,dia] = dataEscolhida.split("-");
-      const [hora,min] = h.split(":");
-      const dtLocal = new Date(ano,mes-1,dia,hora,min,0);
-      horarioInput.value = dtLocal.toISOString().slice(0,19);
+      window.location.href = 'home.html';
     });
-    quadro.appendChild(div);
-  });
-}
 
-dataInput.addEventListener("change",()=>{ horarioSelecionado=null; horarioInput.value=""; atualizarQuadro(); });
+    // Login Admin
+    const formAdmin = document.getElementById('form-admin');
+    formAdmin.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const nome = document.getElementById('nome-admin').value.trim();
+      const senha = document.getElementById('senha-admin').value.trim();
+      if(!nome || !senha) return alert("Preencha todos os campos.");
 
-form.addEventListener("submit", async (e)=>{
-  e.preventDefault();
-  if(!horarioInput.value){ alert("Selecione um horário"); return; }
-  if(agendamentoEditando){
-    const { error } = await client.from("agendamentos").update({ nome_cliente:nomeUsuario, horario:horarioInput.value }).eq("id", agendamentoEditando);
-    if(error) alert("Erro: "+error.message);
-    else { agendamentoEditando=null; form.reset(); atualizarQuadro(); carregarAgendamentos(); }
-  } else {
-    const { error } = await client.from("agendamentos").insert([{ nome_cliente:nomeUsuario, horario:horarioInput.value }]);
-    if(error) alert("Erro: "+error.message);
-    else { form.reset(); horarioSelecionado=null; horarioInput.value=""; atualizarQuadro(); carregarAgendamentos(); }
-  }
-});
+      if(senha !== 'admin123') return alert("Senha incorreta!");
 
-async function carregarAgendamentos(){
-  let query = client.from("agendamentos").select("*").order("horario",{ascending:true});
-  if(tipoUsuario==="cliente") query = query.eq("nome_cliente",nomeUsuario);
+      sessionStorage.setItem('usuarioTipo', 'admin');
+      sessionStorage.setItem('usuarioNome', nome);
 
-  const { data } = await query;
-  lista.innerHTML="";
-  if(data){
-    let lastDia="";
-    data.forEach(item=>{
-      const dt = new Date(item.horario);
-      const diaStr = dt.toLocaleDateString('pt-BR');
-      const horaStr = dt.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit', hour12:false});
-
-      if(diaStr!==lastDia){
-        const diaLi=document.createElement("li");
-        diaLi.textContent=diaStr;
-        diaLi.classList.add("dia");
-        lista.appendChild(diaLi);
-        lastDia=diaStr;
-      }
-
-      const li=document.createElement("li");
-      li.classList.add("horario-item");
-      li.innerHTML=`<span>${item.nome_cliente}</span> - ${horaStr} - [${item.status || 'pendente'}]`;
-
-      if(tipoUsuario==="admin" || tipoUsuario==="cliente"){
-        const btnContainer=document.createElement("div");
-        btnContainer.classList.add("horario-item-buttons");
-
-        // Lixeira
-        const btnLixeira=document.createElement("button");
-        btnLixeira.classList.add("btn-lixeira");
-        btnLixeira.title="Excluir agendamento";
-        btnLixeira.innerHTML=`🗑`;
-        btnLixeira.addEventListener("click", async ()=>{
-          if(confirm("Deseja realmente apagar este agendamento?")){
-            await client.from("agendamentos").delete().eq("id",item.id);
-            carregarAgendamentos();
-            atualizarQuadro();
-          }
-        });
-        btnContainer.appendChild(btnLixeira);
-
-        // Lápis (editar)
-        if(tipoUsuario==="admin"){
-          const btnLapis=document.createElement("button");
-          btnLapis.classList.add("btn-lapis");
-          btnLapis.title="Editar agendamento";
-          btnLapis.innerHTML=`✏️`;
-          btnLapis.addEventListener("click",()=>{
-            dataInput.value=item.horario.split("T")[0];
-            horarioInput.value=item.horario;
-            agendamentoEditando=item.id;
-            atualizarQuadro();
-          });
-          btnContainer.appendChild(btnLapis);
-        }
-
-        li.appendChild(btnContainer);
-      }
-
-      lista.appendChild(li);
+      window.location.href = 'home.html';
     });
-  }
-}
-
-carregarAgendamentos();
-</script>
+  </script>
 </body>
 </html>
