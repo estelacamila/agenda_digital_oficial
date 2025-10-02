@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Login - Agenda Digital</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Roboto', sans-serif; }
+    body {
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #f0f2f5;
+    }
+    .login-container {
+      background: #fff;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      width: 360px;
+      padding: 40px 30px;
+      text-align: center;
+      position: relative;
+    }
+    .avatar {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 20px;
+      background: url('https://cdn-icons-png.flaticon.com/512/149/149071.png') no-repeat center/cover;
+      border-radius: 50%;
+    }
+    h2 {
+      margin-bottom: 25px;
+      color: #333;
+    }
+    .form-group {
+      position: relative;
+      margin-bottom: 20px;
+      text-align: left;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 12px 40px 12px 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+    .form-group input:focus {
+      border-color: #4CAF50;
+      outline: none;
+    }
+    .form-group .icon {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #999;
+      font-size: 18px;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      background-color: #4CAF50;
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+      font-size: 1rem;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="avatar"></div>
+    <h2>Login Agenda</h2>
+
+    <form id="form-cliente">
+      <div class="form-group">
+        <input type="text" id="nome-cliente" placeholder="Nome completo" required>
+        <span class="icon">👤</span>
+      </div>
+      <div class="form-group">
+        <input type="text" id="numero-cliente" placeholder="Número de WhatsApp" required>
+        <span class="icon">📞</span>
+      </div>
+      <button type="submit">Entrar</button>
+    </form>
+
+    <form id="form-admin" style="margin-top:20px;">
+      <div class="form-group">
+        <input type="text" id="nome-admin" placeholder="Nome do Admin" required>
+        <span class="icon">👤</span>
+      </div>
+      <div class="form-group">
+        <input type="password" id="senha-admin" placeholder="Senha" required>
+        <span class="icon">🔒</span>
+      </div>
+      <button type="submit">Entrar como Admin</button>
+    </form>
+  </div>
+
+  <script>
+    // Login Cliente
+    const formCliente = document.getElementById('form-cliente');
+    formCliente.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const nome = document.getElementById('nome-cliente').value.trim();
+      const numero = document.getElementById('numero-cliente').value.trim();
+      if(!nome || !numero) return alert("Preencha todos os campos.");
+      
+      sessionStorage.setItem('usuarioTipo', 'cliente');
+      sessionStorage.setItem('usuarioNome', nome);
+      sessionStorage.setItem('usuarioNumero', numero);
+
+      window.location.href = 'index.html';
+    });
+
+    // Login Admin
+    const formAdmin = document.getElementById('form-admin');
+    formAdmin.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const nome = document.getElementById('nome-admin').value.trim();
+      const senha = document.getElementById('senha-admin').value.trim();
+      if(!nome || !senha) return alert("Preencha todos os campos.");
+
+      if(senha !== 'admin123') return alert("Senha incorreta!");
+
+      sessionStorage.setItem('usuarioTipo', 'admin');
+      sessionStorage.setItem('usuarioNome', nome);
+
+      window.location.href = 'index.html';
+    });
+  </script>
+</body>
+</html>
