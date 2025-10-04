@@ -4,63 +4,149 @@
 <meta charset="UTF-8">
 <title>📅 Agenda Digital</title>
 <script src="https://unpkg.com/@supabase/supabase-js"></script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <style>
-body { background:#f0f2f5; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display:flex; justify-content:center; padding:30px 15px; }
-.container { background:#fff; border-radius:15px; padding:25px 30px; box-shadow:0 6px 25px rgba(0,0,0,0.1); width:100%; max-width:500px; }
-h1 { text-align:center; margin-bottom:25px; color:#333; font-size:1.8rem; }
-input, button { width:100%; padding:12px 15px; font-size:1rem; border-radius:8px; border:1px solid #ccc; box-sizing:border-box; }
-input:focus { outline:none; border-color:#4CAF50; }
-button { background-color:#4CAF50; color:#fff; border:none; font-weight:bold; cursor:pointer; transition:0.3s; margin-top:20px; }
-button:hover { background-color:#45a049; }
-form { display:flex; flex-direction:column; gap:15px; margin-bottom:30px; }
-#quadro-horarios { display:flex; flex-wrap:wrap; gap:10px; margin-top:5px; }
-.horario { flex:1 0 30%; text-align:center; padding:10px 12px; border-radius:8px; cursor:pointer; background:#d4f7d4; color:#333; border:1px solid #4CAF50; font-weight:600; transition:0.2s; }
-.horario.ocupado { background:#f7d4d4; border-color:#e74c3c; cursor:not-allowed; color:#999; }
-.horario.selecionado { background:#4CAF50; color:#fff; }
-h2 { margin-bottom:15px; color:#333; font-size:1.5rem; border-bottom:1px solid #ddd; padding-bottom:5px; }
-ul { list-style:none; padding:0; margin:0; }
-.dia { background:#eafaf1; color:#2e7d32; font-weight:bold; padding:8px 12px; border-radius:8px; margin-top:20px; font-size:1.1rem; }
-.horario-item { display:flex; justify-content:space-between; align-items:center; background:#f9f9f9; padding:10px 12px; margin-top:8px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.05); font-size:0.95rem; transition:0.2s; }
-.horario-item:hover { background:#f1f1f1; }
-.horario-item span { font-weight:600; color:#333; flex-grow:1; }
-.btn-action { width:36px; height:36px; border-radius:50%; border:none; cursor:pointer; display:flex; justify-content:center; align-items:center; font-size:1.1rem; transition:0.3s; box-shadow:0 2px 6px rgba(0,0,0,0.2); margin-left:6px; }
-.btn-excluir { background-color:#ff6b6b; color:#fff; }
-.btn-excluir:hover { background-color:#e55353; transform:scale(1.1); box-shadow:0 4px 10px rgba(229,83,83,0.5); }
-.btn-editar { background-color:#4da6ff; color:#fff; }
-.btn-editar:hover { background-color:#3399ff; transform:scale(1.1); box-shadow:0 4px 10px rgba(51,153,255,0.5); }
-.btn-space { width:36px; height:36px; margin-left:6px; }
+  /* Reset e base */
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: #f0f2f5;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 20px 10px;
+    min-height: 100vh;
+  }
 
-/* Responsividade */
-@media(max-width:480px){
-  .horario{flex:1 0 100%; font-size:0.9rem;} 
-  .horario-item{flex-direction:column; align-items:flex-start; gap:8px;} 
-  .horario-item button{align-self:flex-end;}
-  .container { padding:20px 15px; }
-}
+  /* Container tipo app */
+  .container {
+    background: #fff;
+    border-radius: 25px;
+    padding: 5vw;
+    width: 100%;
+    max-width: 500px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+    display: flex;
+    flex-direction: column;
+  }
+
+  h1 {
+    text-align: center;
+    font-size: 2rem;
+    color: #333;
+    margin-bottom: 20px;
+  }
+
+  /* Formulario */
+  form { display: flex; flex-direction: column; gap: 15px; margin-bottom: 30px; }
+
+  input, button, select {
+    width: 100%;
+    padding: 14px 15px;
+    font-size: 1.1rem;
+    border-radius: 12px;
+    border: 1px solid #ccc;
+    transition: 0.3s;
+  }
+
+  input:focus, select:focus { border-color: #4CAF50; outline: none; }
+
+  button {
+    background: #4CAF50;
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  button:hover { background: #43a047; }
+
+  /* Quadro de horários */
+  #quadro-horarios {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .horario {
+    flex: 1 0 45%;
+    min-height: 60px;
+    background: #d4f7d4;
+    border: 1px solid #4CAF50;
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+    font-size: 1rem;
+  }
+  .horario.ocupado { background:#f7d4d4; border-color:#e74c3c; cursor:not-allowed; color:#999; }
+  .horario.selecionado { background:#4CAF50; color:#fff; }
+
+  /* Lista de agendamentos */
+  h2 { margin-bottom: 10px; font-size: 1.5rem; color:#333; border-bottom:1px solid #ddd; padding-bottom:5px; }
+  ul { list-style:none; padding:0; margin:0; }
+  .dia { background:#eafaf1; color:#2e7d32; font-weight:bold; padding:8px 12px; border-radius:8px; margin-top:20px; font-size:1.1rem; }
+  .horario-item {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:#f9f9f9;
+    padding:12px;
+    margin-top:8px;
+    border-radius:12px;
+    box-shadow:0 2px 6px rgba(0,0,0,0.05);
+    font-size:1rem;
+    gap: 6px;
+  }
+  .horario-item span { flex-grow:1; font-weight:600; color:#333; }
+
+  /* Botões de ação */
+  .btn-action {
+    width:40px;
+    height:40px;
+    border-radius:50%;
+    border:none;
+    cursor:pointer;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:1.2rem;
+    transition:0.3s;
+    box-shadow:0 2px 6px rgba(0,0,0,0.2);
+  }
+  .btn-excluir { background:#ff6b6b; color:#fff; }
+  .btn-excluir:hover { background:#e55353; transform:scale(1.1); box-shadow:0 4px 10px rgba(229,83,83,0.5); }
+  .btn-editar { background:#4da6ff; color:#fff; }
+  .btn-editar:hover { background:#3399ff; transform:scale(1.1); box-shadow:0 4px 10px rgba(51,153,255,0.5); }
+
+  /* Responsividade */
+  @media(max-width:480px){
+    .horario { flex: 1 0 100%; font-size:1.1rem; min-height:55px; }
+    .horario-item { flex-direction: column; align-items:flex-start; font-size:1rem; gap:6px; }
+    .horario-item button { align-self:flex-end; }
+    input, select, button { font-size:1.1rem; padding:14px; }
+  }
+
 </style>
 </head>
 <body>
 <div class="container">
-<h1>📅 Agenda Digital</h1>
+  <h1>📅 Agenda Digital</h1>
 
-<form id="form-agenda">
-  <input type="text" id="nome" readonly />
-  <input type="text" id="data" placeholder="Escolha a data" required />
-  <input type="hidden" id="horario" required />
-  <div id="quadro-horarios"></div>
-  <button type="submit">Agendar</button>
-</form>
+  <form id="form-agenda">
+    <input type="text" id="nome" readonly />
+    <input type="date" id="data" required />
+    <input type="hidden" id="horario" required />
+    <div id="quadro-horarios"></div>
+    <button type="submit">Agendar</button>
+  </form>
 
-<h2>Agendamentos</h2>
-<ul id="lista"></ul>
+  <h2>Agendamentos</h2>
+  <ul id="lista"></ul>
 </div>
 
 <script>
 const SUPABASE_URL = "https://zlifgtznogdejoibzmpu.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpsaWZndHpub2dkZWpvaWJ6bXB1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkzNTQyMTgsImV4cCI6MjA3NDkzMDIxOH0.Xn4SvzKEy5SPVuObgWJK6BbAzw5twCtUyrcO4sg9pPM";
-
+const SUPABASE_KEY = "SEU_SUPABASE_KEY";
 const { createClient } = supabase;
 const client = createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -79,17 +165,6 @@ if (tipoUsuario === "admin") { form.style.display = "none"; }
 
 const horariosPadrao = ["09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00"];
 let horarioSelecionado = null;
-
-// Inicializa flatpickr para data
-flatpickr("#data", {
-  dateFormat: "Y-m-d",
-  minDate: "today",
-  onChange: () => {
-    horarioSelecionado = null;
-    horarioInput.value = "";
-    atualizarQuadro();
-  }
-});
 
 // Atualiza quadro de horários
 async function atualizarQuadro() {
@@ -128,13 +203,18 @@ async function atualizarQuadro() {
   });
 }
 
+dataInput.addEventListener("change", () => {
+  horarioSelecionado = null;
+  horarioInput.value = "";
+  atualizarQuadro();
+});
+
 // Submissão do formulário
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
   const nome = nomeInput.value;
   const dataEscolhida = dataInput.value;
   const horarioEscolhido = horarioSelecionado;
-
   if (!horarioEscolhido) { alert("Selecione um horário"); return; }
 
   const [ano, mes, dia] = dataEscolhida.split("-");
@@ -143,12 +223,11 @@ form.addEventListener("submit", async (e) => {
 
   const { error } = await client.from("agendamentos")
     .insert([{ nome_cliente: nome, horario: dtLocal.toISOString().slice(0,19) }]);
-
   if (error){ alert("Erro ao agendar: "+error.message); return; }
 
   alert("Agendamento criado!");
 
-  const numeroDona = "5511999999999"; 
+  const numeroDona = "5511999999999";
   const diaStr = dtLocal.toLocaleDateString('pt-BR');
   const horaStr = dtLocal.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit', hour12:false});
   const mensagem = `Olá! Sou ${nome} e acabei de agendar meu horário no site para o dia ${diaStr} às ${horaStr}.`;
@@ -223,7 +302,6 @@ async function carregarAgendamentos(){
             .lt("horario", diaStr+"T23:59");
 
           const ocupados = agendamentosDia.map(a=>({hora:new Date(a.horario).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit', hour12:false}), id: a.id}));
-
           let novoHorario = null;
           while(!novoHorario){
             const horaEscolhida = prompt(`Digite novo horário (${horariosPadrao.join(", ")})`);
