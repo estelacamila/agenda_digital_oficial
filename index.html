@@ -5,148 +5,75 @@
 <title>📅 Agenda Digital</title>
 <script src="https://unpkg.com/@supabase/supabase-js"></script>
 <style>
-  /* Reset e base */
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: 'Segoe UI', sans-serif;
-    background: #f0f2f5;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    padding: 20px 10px;
-    min-height: 100vh;
+  body { 
+    background:#f0f2f5; 
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+    display:flex; 
+    justify-content:center; 
+    padding:20px; 
   }
-
-  /* Container tipo app */
-  .container {
-    background: #fff;
-    border-radius: 25px;
-    padding: 5vw;
-    width: 100%;
-    max-width: 500px;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
-    display: flex;
-    flex-direction: column;
+  .container { 
+    background:#fff; 
+    border-radius:15px; 
+    padding:25px 20px; 
+    box-shadow:0 6px 25px rgba(0,0,0,0.1); 
+    width:100%; 
+    max-width:450px; 
   }
-
-  h1 {
-    text-align: center;
-    font-size: 2rem;
-    color: #333;
-    margin-bottom: 20px;
-  }
-
-  /* Formulario */
-  form { display: flex; flex-direction: column; gap: 15px; margin-bottom: 30px; }
-
-  input, button, select {
-    width: 100%;
-    padding: 14px 15px;
-    font-size: 1.1rem;
-    border-radius: 12px;
-    border: 1px solid #ccc;
-    transition: 0.3s;
-  }
-
-  input:focus, select:focus { border-color: #4CAF50; outline: none; }
-
-  button {
-    background: #4CAF50;
-    color: #fff;
-    font-weight: bold;
-    cursor: pointer;
-  }
-  button:hover { background: #43a047; }
-
-  /* Quadro de horários */
-  #quadro-horarios {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-  .horario {
-    flex: 1 0 45%;
-    min-height: 60px;
-    background: #d4f7d4;
-    border: 1px solid #4CAF50;
-    border-radius: 12px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-weight: 600;
-    cursor: pointer;
-    transition: 0.2s;
-    font-size: 1rem;
-  }
+  h1 { text-align:center; margin-bottom:20px; color:#333; font-size:1.8rem; }
+  label { display:block; margin-bottom:5px; font-weight:600; color:#333; }
+  input, button { width:100%; padding:12px 15px; font-size:1rem; border-radius:8px; border:1px solid #ccc; box-sizing:border-box; }
+  input:focus { outline:none; border-color:#4CAF50; }
+  input[readonly] { background:#e0e0e0; color:#555; cursor:not-allowed; }
+  button { background-color:#4CAF50; color:#fff; border:none; font-weight:bold; cursor:pointer; transition:0.3s; margin-top:15px; }
+  button:hover { background-color:#45a049; }
+  form { display:flex; flex-direction:column; gap:15px; margin-bottom:30px; position:relative; }
+  #quadro-horarios { display:flex; flex-wrap:wrap; gap:10px; margin-top:5px; }
+  .horario { flex:1 0 30%; text-align:center; padding:10px 12px; border-radius:8px; cursor:pointer; background:#d4f7d4; color:#333; border:1px solid #4CAF50; font-weight:600; transition:0.2s; }
   .horario.ocupado { background:#f7d4d4; border-color:#e74c3c; cursor:not-allowed; color:#999; }
   .horario.selecionado { background:#4CAF50; color:#fff; }
-
-  /* Lista de agendamentos */
-  h2 { margin-bottom: 10px; font-size: 1.5rem; color:#333; border-bottom:1px solid #ddd; padding-bottom:5px; }
+  h2 { margin-bottom:15px; color:#333; font-size:1.5rem; border-bottom:1px solid #ddd; padding-bottom:5px; }
   ul { list-style:none; padding:0; margin:0; }
   .dia { background:#eafaf1; color:#2e7d32; font-weight:bold; padding:8px 12px; border-radius:8px; margin-top:20px; font-size:1.1rem; }
-  .horario-item {
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    background:#f9f9f9;
-    padding:12px;
-    margin-top:8px;
-    border-radius:12px;
-    box-shadow:0 2px 6px rgba(0,0,0,0.05);
-    font-size:1rem;
-    gap: 6px;
-  }
-  .horario-item span { flex-grow:1; font-weight:600; color:#333; }
-
-  /* Botões de ação */
-  .btn-action {
-    width:40px;
-    height:40px;
-    border-radius:50%;
-    border:none;
-    cursor:pointer;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    font-size:1.2rem;
-    transition:0.3s;
-    box-shadow:0 2px 6px rgba(0,0,0,0.2);
-  }
-  .btn-excluir { background:#ff6b6b; color:#fff; }
-  .btn-excluir:hover { background:#e55353; transform:scale(1.1); box-shadow:0 4px 10px rgba(229,83,83,0.5); }
-  .btn-editar { background:#4da6ff; color:#fff; }
-  .btn-editar:hover { background:#3399ff; transform:scale(1.1); box-shadow:0 4px 10px rgba(51,153,255,0.5); }
-
+  .horario-item { display:flex; justify-content:space-between; align-items:center; background:#f9f9f9; padding:10px 12px; margin-top:8px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.05); font-size:0.95rem; transition:0.2s; }
+  .horario-item:hover { background:#f1f1f1; }
+  .horario-item span { font-weight:600; color:#333; flex-grow:1; }
+  .btn-action { width:36px; height:36px; border-radius:50%; border:none; cursor:pointer; display:flex; justify-content:center; align-items:center; font-size:1.1rem; transition:0.3s; box-shadow:0 2px 6px rgba(0,0,0,0.2); margin-left:6px; }
+  .btn-excluir { background-color:#ff6b6b; color:#fff; }
+  .btn-excluir:hover { background-color:#e55353; transform:scale(1.1); box-shadow:0 4px 10px rgba(229,83,83,0.5); }
+  .btn-editar { background-color:#4da6ff; color:#fff; }
+  .btn-editar:hover { background-color:#3399ff; transform:scale(1.1); box-shadow:0 4px 10px rgba(51,153,255,0.5); }
   /* Responsividade */
   @media(max-width:480px){
-    .horario { flex: 1 0 100%; font-size:1.1rem; min-height:55px; }
-    .horario-item { flex-direction: column; align-items:flex-start; font-size:1rem; gap:6px; }
-    .horario-item button { align-self:flex-end; }
-    input, select, button { font-size:1.1rem; padding:14px; }
+    .horario{flex:1 0 100%; font-size:0.9rem;} 
+    .horario-item{flex-direction:column; align-items:flex-start; gap:8px;} 
+    .horario-item button{align-self:flex-end;}
   }
-
 </style>
 </head>
 <body>
 <div class="container">
-  <h1>📅 Agenda Digital</h1>
+<h1>📅 Agenda Digital</h1>
 
-  <form id="form-agenda">
-    <input type="text" id="nome" readonly />
-    <input type="date" id="data" required />
-    <input type="hidden" id="horario" required />
-    <div id="quadro-horarios"></div>
-    <button type="submit">Agendar</button>
-  </form>
+<form id="form-agenda">
+  <label for="nome">Nome do Cliente</label>
+  <input type="text" id="nome" readonly />
+  
+  <label for="data">Selecione uma data</label>
+  <input type="date" id="data" required />
 
-  <h2>Agendamentos</h2>
-  <ul id="lista"></ul>
+  <input type="hidden" id="horario" required />
+  <div id="quadro-horarios"></div>
+  <button type="submit">Agendar</button>
+</form>
+
+<h2>Agendamentos</h2>
+<ul id="lista"></ul>
 </div>
 
 <script>
 const SUPABASE_URL = "https://zlifgtznogdejoibzmpu.supabase.co";
-const SUPABASE_KEY = "SEU_SUPABASE_KEY";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpsaWZndHpub2dkZWpvaWJ6bXB1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkzNTQyMTgsImV4cCI6MjA3NDkzMDIxOH0.Xn4SvzKEy5SPVuObgWJK6BbAzw5twCtUyrcO4sg9pPM";
 const { createClient } = supabase;
 const client = createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -160,120 +87,112 @@ const tipoUsuario = sessionStorage.getItem("tipoUsuario") || "cliente";
 const nomeCliente = sessionStorage.getItem("nomeCliente") || "";
 
 const nomeInput = document.getElementById("nome");
-if (tipoUsuario === "cliente") { nomeInput.value = nomeCliente; }
-if (tipoUsuario === "admin") { form.style.display = "none"; }
+if(tipoUsuario === "cliente") { nomeInput.value = nomeCliente; }
+if(tipoUsuario === "admin") { form.style.display="none"; }
 
 const horariosPadrao = ["09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00"];
 let horarioSelecionado = null;
 
-// Atualiza quadro de horários
-async function atualizarQuadro() {
-  if (tipoUsuario === "admin") return;
+async function atualizarQuadro(){
+  if(tipoUsuario==="admin") return;
   const dataEscolhida = dataInput.value;
-  if (!dataEscolhida){ quadro.innerHTML = ""; return; }
+  if(!dataEscolhida){ quadro.innerHTML=""; return; }
 
-  const { data: agendamentos } = await client
-    .from("agendamentos")
+  const { data: agendamentos } = await client.from("agendamentos")
     .select("*")
-    .gte("horario", dataEscolhida + "T00:00")
-    .lt("horario", dataEscolhida + "T23:59");
+    .gte("horario", dataEscolhida+"T00:00")
+    .lt("horario", dataEscolhida+"T23:59");
 
-  quadro.innerHTML = "";
-  const ocupados = agendamentos.map(a => new Date(a.horario).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit', hour12:false}));
+  quadro.innerHTML="";
+  const ocupados = agendamentos.map(a=>new Date(a.horario).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit',hour12:false}));
 
-  horariosPadrao.forEach(h => {
+  horariosPadrao.forEach(h=>{
     const div = document.createElement("div");
     div.textContent = h;
     div.classList.add("horario");
-
-    if (ocupados.includes(h)) div.classList.add("ocupado");
-    else div.addEventListener("click", () => {
+    if(ocupados.includes(h)) div.classList.add("ocupado");
+    else div.addEventListener("click",()=>{
       const prev = quadro.querySelector(".selecionado");
       if(prev) prev.classList.remove("selecionado");
       div.classList.add("selecionado");
       horarioSelecionado = h;
 
-      const [ano, mes, dia] = dataEscolhida.split("-");
-      const [hora, min] = h.split(":");
-      const dtLocal = new Date(ano, mes-1, dia, hora, min, 0);
+      const [ano,mes,dia]=dataEscolhida.split("-");
+      const [hora,min]=h.split(":");
+      const dtLocal = new Date(ano,mes-1,dia,hora,min,0);
       horarioInput.value = dtLocal.toISOString().slice(0,19);
     });
-
     quadro.appendChild(div);
   });
 }
 
-dataInput.addEventListener("change", () => {
-  horarioSelecionado = null;
-  horarioInput.value = "";
+dataInput.addEventListener("change",()=>{
+  horarioSelecionado=null;
+  horarioInput.value="";
   atualizarQuadro();
 });
 
-// Submissão do formulário
-form.addEventListener("submit", async (e) => {
+form.addEventListener("submit", async (e)=>{
   e.preventDefault();
   const nome = nomeInput.value;
   const dataEscolhida = dataInput.value;
   const horarioEscolhido = horarioSelecionado;
-  if (!horarioEscolhido) { alert("Selecione um horário"); return; }
+  if(!horarioEscolhido){ alert("Selecione um horário"); return; }
 
-  const [ano, mes, dia] = dataEscolhida.split("-");
-  const [hora, min] = horarioEscolhido.split(":");
-  const dtLocal = new Date(ano, mes-1, dia, hora, min, 0);
+  const [ano,mes,dia]=dataEscolhida.split("-");
+  const [hora,min]=horarioEscolhido.split(":");
+  const dtLocal = new Date(ano,mes-1,dia,hora,min,0);
 
   const { error } = await client.from("agendamentos")
-    .insert([{ nome_cliente: nome, horario: dtLocal.toISOString().slice(0,19) }]);
-  if (error){ alert("Erro ao agendar: "+error.message); return; }
+    .insert([{ nome_cliente:nome, horario: dtLocal.toISOString().slice(0,19) }]);
+  if(error){ alert("Erro: "+error.message); return; }
 
   alert("Agendamento criado!");
 
-  const numeroDona = "5511999999999";
+  // WhatsApp
+  const numeroDona = "5511999999999"; // insira número da dona
   const diaStr = dtLocal.toLocaleDateString('pt-BR');
   const horaStr = dtLocal.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit', hour12:false});
   const mensagem = `Olá! Sou ${nome} e acabei de agendar meu horário no site para o dia ${diaStr} às ${horaStr}.`;
   const linkWhats = `https://wa.me/${numeroDona}?text=${encodeURIComponent(mensagem)}`;
-  window.open(linkWhats, "_blank");
+  window.open(linkWhats,"_blank");
 
   form.reset();
-  horarioSelecionado = null;
-  horarioInput.value = "";
-  quadro.innerHTML = "";
+  horarioSelecionado=null;
+  horarioInput.value="";
+  quadro.innerHTML="";
   carregarAgendamentos();
 });
 
-// Carregar agendamentos
 async function carregarAgendamentos(){
   const { data } = await client.from("agendamentos").select("*").order("horario",{ascending:true});
-  lista.innerHTML = "";
+  lista.innerHTML="";
   if(data){
-    let lastDia = "";
-    data.forEach(item => {
+    let lastDia="";
+    data.forEach(item=>{
       if(tipoUsuario==="cliente" && item.nome_cliente.toLowerCase()!==nomeCliente.toLowerCase()) return;
-
       const dt = new Date(item.horario);
       const diaStr = dt.toLocaleDateString('pt-BR');
       const horaStr = dt.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit', hour12:false});
-
       if(diaStr!==lastDia){
         const diaLi = document.createElement("li");
-        diaLi.textContent = diaStr;
+        diaLi.textContent=diaStr;
         diaLi.classList.add("dia");
         lista.appendChild(diaLi);
-        lastDia = diaStr;
+        lastDia=diaStr;
       }
-
       const li = document.createElement("li");
       li.classList.add("horario-item");
-      li.innerHTML = `<span>${item.nome_cliente}</span> - ${horaStr} - [${item.status || 'pendente'}]`;
+      li.innerHTML=`<span>${item.nome_cliente}</span> - ${horaStr} - [${item.status || 'pendente'}]`;
 
       if(tipoUsuario==="cliente"){
         const btn = document.createElement("button");
         btn.classList.add("btn-action","btn-excluir");
-        btn.title = "Excluir";
-        btn.innerHTML = "🗑️";
-        btn.addEventListener("click", async () => {
+        btn.title="Excluir";
+        btn.innerHTML="🗑️";
+        btn.addEventListener("click",async()=>{
           if(confirm("Deseja apagar?")){
-            await client.from("agendamentos").delete().eq("id", item.id);
+            await client.from("agendamentos").delete().eq("id",item.id);
             carregarAgendamentos();
             atualizarQuadro();
           }
@@ -282,44 +201,40 @@ async function carregarAgendamentos(){
       } else if(tipoUsuario==="admin"){
         const btnExcluir = document.createElement("button");
         btnExcluir.classList.add("btn-action","btn-excluir");
-        btnExcluir.title = "Excluir";
-        btnExcluir.innerHTML = "🗑️";
-        btnExcluir.addEventListener("click", async () => {
+        btnExcluir.title="Excluir";
+        btnExcluir.innerHTML="🗑️";
+        btnExcluir.addEventListener("click",async()=>{
           if(confirm("Deseja apagar?")){
-            await client.from("agendamentos").delete().eq("id", item.id);
+            await client.from("agendamentos").delete().eq("id",item.id);
             carregarAgendamentos();
           }
         });
-
         const btnEditar = document.createElement("button");
         btnEditar.classList.add("btn-action","btn-editar");
-        btnEditar.title = "Editar";
-        btnEditar.innerHTML = "✏️";
-        btnEditar.addEventListener("click", async () => {
-          const diaStr = item.horario.split("T")[0];
+        btnEditar.title="Editar";
+        btnEditar.innerHTML="✏️";
+        btnEditar.addEventListener("click",async()=>{
+          const diaStr=item.horario.split("T")[0];
           const { data: agendamentosDia } = await client.from("agendamentos").select("*")
-            .gte("horario", diaStr+"T00:00")
-            .lt("horario", diaStr+"T23:59");
-
-          const ocupados = agendamentosDia.map(a=>({hora:new Date(a.horario).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit', hour12:false}), id: a.id}));
-          let novoHorario = null;
+            .gte("horario",diaStr+"T00:00")
+            .lt("horario",diaStr+"T23:59");
+          const ocupados=agendamentosDia.map(a=>({hora:new Date(a.horario).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit', hour12:false}), id:a.id}));
+          let novoHorario=null;
           while(!novoHorario){
-            const horaEscolhida = prompt(`Digite novo horário (${horariosPadrao.join(", ")})`);
+            const horaEscolhida=prompt(`Digite novo horário (${horariosPadrao.join(", ")})`);
             if(!horaEscolhida) break;
             if(!horariosPadrao.includes(horaEscolhida)){ alert("Horário inválido!"); continue; }
             if(ocupados.some(o=>o.hora===horaEscolhida && o.id!==item.id)){ alert("Horário já ocupado!"); continue; }
-            novoHorario = horaEscolhida;
+            novoHorario=horaEscolhida;
           }
-
           if(novoHorario){
-            const [ano, mes, dia] = diaStr.split("-");
-            const [hora, min] = novoHorario.split(":");
-            const dtLocal = new Date(ano, mes-1, dia, hora, min, 0);
-            await client.from("agendamentos").update({ horario: dtLocal.toISOString().slice(0,19) }).eq("id", item.id);
+            const [ano,mes,dia]=diaStr.split("-");
+            const [hora,min]=novoHorario.split(":");
+            const dtLocal=new Date(ano,mes-1,dia,hora,min,0);
+            await client.from("agendamentos").update({horario:dtLocal.toISOString().slice(0,19)}).eq("id",item.id);
             carregarAgendamentos();
           }
         });
-
         li.appendChild(btnExcluir);
         li.appendChild(btnEditar);
       }
