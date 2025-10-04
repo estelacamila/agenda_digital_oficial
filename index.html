@@ -60,7 +60,7 @@
   <input type="text" id="nome" readonly />
   
   <label for="data">Selecione uma data</label>
-  <input type="date" id="data" required />
+  <input type="date" id="data" required placeholder="Selecione uma data" />
 
   <input type="hidden" id="horario" required />
   <div id="quadro-horarios"></div>
@@ -73,26 +73,40 @@
 
 <script>
 const SUPABASE_URL = "https://zlifgtznogdejoibzmpu.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpsaWZndHpub2dkZWpvaWJ6bXB1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkzNTQyMTgsImV4cCI6MjA3NDkzMDIxOH0.Xn4SvzKEy5SPVuObgWJK6BbAzw5twCtUyrcO4sg9pPM";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpsaWZndHpub2dkZWpvaWJ6bXB1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkzNTQyMTgsImV4cCI6MjA3NDkzMDIxOH0.Xn4SvzKEy5SPVuObgWJK6BbAzw5twCtUyrcO4sg9pPM"; // Substitua pela sua chave
 const { createClient } = supabase;
 const client = createClient(SUPABASE_URL, SUPABASE_KEY);
 
+// ===================== VERIFICA LOGIN =====================
+const tipoUsuario = sessionStorage.getItem("tipoUsuario");
+const nomeCliente = sessionStorage.getItem("nomeCliente") || "";
+
+if(!tipoUsuario){
+  window.location.href = "login.html";
+}
+
+// Limpar sessionStorage ao sair
+window.addEventListener("beforeunload", () => {
+  sessionStorage.removeItem("tipoUsuario");
+  sessionStorage.removeItem("nomeCliente");
+  sessionStorage.removeItem("numeroCliente");
+});
+
+// ===================== VARIÁVEIS =====================
 const form = document.getElementById("form-agenda");
 const lista = document.getElementById("lista");
 const dataInput = document.getElementById("data");
 const horarioInput = document.getElementById("horario");
 const quadro = document.getElementById("quadro-horarios");
-
-const tipoUsuario = sessionStorage.getItem("tipoUsuario") || "cliente";
-const nomeCliente = sessionStorage.getItem("nomeCliente") || "";
-
 const nomeInput = document.getElementById("nome");
+
 if(tipoUsuario === "cliente") { nomeInput.value = nomeCliente; }
 if(tipoUsuario === "admin") { form.style.display="none"; }
 
 const horariosPadrao = ["09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00"];
 let horarioSelecionado = null;
 
+// ===================== FUNÇÕES =====================
 async function atualizarQuadro(){
   if(tipoUsuario==="admin") return;
   const dataEscolhida = dataInput.value;
@@ -184,60 +198,6 @@ async function carregarAgendamentos(){
       const li = document.createElement("li");
       li.classList.add("horario-item");
       li.innerHTML=`<span>${item.nome_cliente}</span> - ${horaStr} - [${item.status || 'pendente'}]`;
-
-      if(tipoUsuario==="cliente"){
-        const btn = document.createElement("button");
-        btn.classList.add("btn-action","btn-excluir");
-        btn.title="Excluir";
-        btn.innerHTML="🗑️";
-        btn.addEventListener("click",async()=>{
-          if(confirm("Deseja apagar?")){
-            await client.from("agendamentos").delete().eq("id",item.id);
-            carregarAgendamentos();
-            atualizarQuadro();
-          }
-        });
-        li.appendChild(btn);
-      } else if(tipoUsuario==="admin"){
-        const btnExcluir = document.createElement("button");
-        btnExcluir.classList.add("btn-action","btn-excluir");
-        btnExcluir.title="Excluir";
-        btnExcluir.innerHTML="🗑️";
-        btnExcluir.addEventListener("click",async()=>{
-          if(confirm("Deseja apagar?")){
-            await client.from("agendamentos").delete().eq("id",item.id);
-            carregarAgendamentos();
-          }
-        });
-        const btnEditar = document.createElement("button");
-        btnEditar.classList.add("btn-action","btn-editar");
-        btnEditar.title="Editar";
-        btnEditar.innerHTML="✏️";
-        btnEditar.addEventListener("click",async()=>{
-          const diaStr=item.horario.split("T")[0];
-          const { data: agendamentosDia } = await client.from("agendamentos").select("*")
-            .gte("horario",diaStr+"T00:00")
-            .lt("horario",diaStr+"T23:59");
-          const ocupados=agendamentosDia.map(a=>({hora:new Date(a.horario).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit', hour12:false}), id:a.id}));
-          let novoHorario=null;
-          while(!novoHorario){
-            const horaEscolhida=prompt(`Digite novo horário (${horariosPadrao.join(", ")})`);
-            if(!horaEscolhida) break;
-            if(!horariosPadrao.includes(horaEscolhida)){ alert("Horário inválido!"); continue; }
-            if(ocupados.some(o=>o.hora===horaEscolhida && o.id!==item.id)){ alert("Horário já ocupado!"); continue; }
-            novoHorario=horaEscolhida;
-          }
-          if(novoHorario){
-            const [ano,mes,dia]=diaStr.split("-");
-            const [hora,min]=novoHorario.split(":");
-            const dtLocal=new Date(ano,mes-1,dia,hora,min,0);
-            await client.from("agendamentos").update({horario:dtLocal.toISOString().slice(0,19)}).eq("id",item.id);
-            carregarAgendamentos();
-          }
-        });
-        li.appendChild(btnExcluir);
-        li.appendChild(btnEditar);
-      }
 
       lista.appendChild(li);
     });
