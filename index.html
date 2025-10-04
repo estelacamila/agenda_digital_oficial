@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <title>📅 Agenda Digital</title>
 <script src="https://unpkg.com/@supabase/supabase-js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <style>
 body { background:#f0f2f5; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display:flex; justify-content:center; padding:30px 15px; }
 .container { background:#fff; border-radius:15px; padding:25px 30px; box-shadow:0 6px 25px rgba(0,0,0,0.1); width:100%; max-width:500px; }
@@ -31,17 +33,11 @@ ul { list-style:none; padding:0; margin:0; }
 .btn-space { width:36px; height:36px; margin-left:6px; }
 
 /* Responsividade */
-@media(max-width:768px){ 
-  .container { padding:20px; }
-  h1 { font-size:1.5rem; }
-  .horario{flex:1 0 45%; font-size:0.95rem;}
-}
-@media(max-width:480px){ 
-  .container { padding:15px; }
-  h1 { font-size:1.3rem; }
+@media(max-width:480px){
   .horario{flex:1 0 100%; font-size:0.9rem;} 
   .horario-item{flex-direction:column; align-items:flex-start; gap:8px;} 
   .horario-item button{align-self:flex-end;}
+  .container { padding:20px 15px; }
 }
 </style>
 </head>
@@ -51,7 +47,7 @@ ul { list-style:none; padding:0; margin:0; }
 
 <form id="form-agenda">
   <input type="text" id="nome" readonly />
-  <input type="date" id="data" required />
+  <input type="text" id="data" placeholder="Escolha a data" required />
   <input type="hidden" id="horario" required />
   <div id="quadro-horarios"></div>
   <button type="submit">Agendar</button>
@@ -64,14 +60,9 @@ ul { list-style:none; padding:0; margin:0; }
 <script>
 const SUPABASE_URL = "https://zlifgtznogdejoibzmpu.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpsaWZndHpub2dkZWpvaWJ6bXB1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkzNTQyMTgsImV4cCI6MjA3NDkzMDIxOH0.Xn4SvzKEy5SPVuObgWJK6BbAzw5twCtUyrcO4sg9pPM";
+
 const { createClient } = supabase;
 const client = createClient(SUPABASE_URL, SUPABASE_KEY);
-
-const tipoUsuario = sessionStorage.getItem("tipoUsuario");
-const nomeCliente = sessionStorage.getItem("nomeCliente");
-
-// Redireciona para login se não tiver sessão
-if(!tipoUsuario){ window.location.href = "login.html"; }
 
 const form = document.getElementById("form-agenda");
 const lista = document.getElementById("lista");
@@ -79,88 +70,105 @@ const dataInput = document.getElementById("data");
 const horarioInput = document.getElementById("horario");
 const quadro = document.getElementById("quadro-horarios");
 
+const tipoUsuario = sessionStorage.getItem("tipoUsuario") || "cliente";
+const nomeCliente = sessionStorage.getItem("nomeCliente") || "";
+
 const nomeInput = document.getElementById("nome");
-if(tipoUsuario==="cliente"){ nomeInput.value = nomeCliente; }
-if(tipoUsuario==="admin"){ form.style.display = "none"; }
+if (tipoUsuario === "cliente") { nomeInput.value = nomeCliente; }
+if (tipoUsuario === "admin") { form.style.display = "none"; }
 
 const horariosPadrao = ["09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00"];
 let horarioSelecionado = null;
 
-async function atualizarQuadro(){
-  if(tipoUsuario==="admin") return;
+// Inicializa flatpickr para data
+flatpickr("#data", {
+  dateFormat: "Y-m-d",
+  minDate: "today",
+  onChange: () => {
+    horarioSelecionado = null;
+    horarioInput.value = "";
+    atualizarQuadro();
+  }
+});
+
+// Atualiza quadro de horários
+async function atualizarQuadro() {
+  if (tipoUsuario === "admin") return;
   const dataEscolhida = dataInput.value;
-  if(!dataEscolhida){ quadro.innerHTML=""; return; }
+  if (!dataEscolhida){ quadro.innerHTML = ""; return; }
 
-  const { data: agendamentos } = await client.from("agendamentos").select("*")
-    .gte("horario", dataEscolhida+"T00:00")
-    .lt("horario", dataEscolhida+"T23:59");
+  const { data: agendamentos } = await client
+    .from("agendamentos")
+    .select("*")
+    .gte("horario", dataEscolhida + "T00:00")
+    .lt("horario", dataEscolhida + "T23:59");
 
-  quadro.innerHTML="";
-  const ocupados = agendamentos.map(a=>new Date(a.horario).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit', hour12:false}));
+  quadro.innerHTML = "";
+  const ocupados = agendamentos.map(a => new Date(a.horario).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit', hour12:false}));
 
-  horariosPadrao.forEach(h=>{
+  horariosPadrao.forEach(h => {
     const div = document.createElement("div");
     div.textContent = h;
     div.classList.add("horario");
-    if(ocupados.includes(h)) div.classList.add("ocupado");
-    else div.addEventListener("click", ()=>{
+
+    if (ocupados.includes(h)) div.classList.add("ocupado");
+    else div.addEventListener("click", () => {
       const prev = quadro.querySelector(".selecionado");
       if(prev) prev.classList.remove("selecionado");
       div.classList.add("selecionado");
       horarioSelecionado = h;
 
-      const [ano,mes,dia] = dataEscolhida.split("-");
-      const [hora,min] = h.split(":");
+      const [ano, mes, dia] = dataEscolhida.split("-");
+      const [hora, min] = h.split(":");
       const dtLocal = new Date(ano, mes-1, dia, hora, min, 0);
       horarioInput.value = dtLocal.toISOString().slice(0,19);
     });
+
     quadro.appendChild(div);
   });
 }
 
-dataInput.addEventListener("change",()=>{
-  horarioSelecionado=null;
-  horarioInput.value="";
-  atualizarQuadro();
-});
-
-form.addEventListener("submit", async(e)=>{
+// Submissão do formulário
+form.addEventListener("submit", async (e) => {
   e.preventDefault();
   const nome = nomeInput.value;
   const dataEscolhida = dataInput.value;
   const horarioEscolhido = horarioSelecionado;
 
-  if(!horarioEscolhido){ alert("Selecione um horário"); return; }
+  if (!horarioEscolhido) { alert("Selecione um horário"); return; }
 
-  const [ano,mes,dia] = dataEscolhida.split("-");
-  const [hora,min] = horarioEscolhido.split(":");
-  const dtLocal = new Date(ano,mes-1,dia,hora,min,0);
+  const [ano, mes, dia] = dataEscolhida.split("-");
+  const [hora, min] = horarioEscolhido.split(":");
+  const dtLocal = new Date(ano, mes-1, dia, hora, min, 0);
 
-  const { error } = await client.from("agendamentos").insert([{ nome_cliente:nome, horario: dtLocal.toISOString().slice(0,19) }]);
-  if(error){ alert("Erro ao agendar: "+error.message); return; }
+  const { error } = await client.from("agendamentos")
+    .insert([{ nome_cliente: nome, horario: dtLocal.toISOString().slice(0,19) }]);
+
+  if (error){ alert("Erro ao agendar: "+error.message); return; }
 
   alert("Agendamento criado!");
 
-  const numeroDona = "5511999999999";
+  const numeroDona = "5511999999999"; 
   const diaStr = dtLocal.toLocaleDateString('pt-BR');
   const horaStr = dtLocal.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit', hour12:false});
   const mensagem = `Olá! Sou ${nome} e acabei de agendar meu horário no site para o dia ${diaStr} às ${horaStr}.`;
   const linkWhats = `https://wa.me/${numeroDona}?text=${encodeURIComponent(mensagem)}`;
-  window.open(linkWhats,"_blank");
+  window.open(linkWhats, "_blank");
 
   form.reset();
-  horarioSelecionado=null;
-  horarioInput.value="";
-  quadro.innerHTML="";
+  horarioSelecionado = null;
+  horarioInput.value = "";
+  quadro.innerHTML = "";
   carregarAgendamentos();
 });
 
+// Carregar agendamentos
 async function carregarAgendamentos(){
   const { data } = await client.from("agendamentos").select("*").order("horario",{ascending:true});
-  lista.innerHTML="";
+  lista.innerHTML = "";
   if(data){
-    let lastDia="";
-    data.forEach(item=>{
+    let lastDia = "";
+    data.forEach(item => {
       if(tipoUsuario==="cliente" && item.nome_cliente.toLowerCase()!==nomeCliente.toLowerCase()) return;
 
       const dt = new Date(item.horario);
@@ -182,11 +190,11 @@ async function carregarAgendamentos(){
       if(tipoUsuario==="cliente"){
         const btn = document.createElement("button");
         btn.classList.add("btn-action","btn-excluir");
-        btn.title="Excluir";
-        btn.innerHTML="🗑️";
-        btn.addEventListener("click", async()=>{
+        btn.title = "Excluir";
+        btn.innerHTML = "🗑️";
+        btn.addEventListener("click", async () => {
           if(confirm("Deseja apagar?")){
-            await client.from("agendamentos").delete().eq("id",item.id);
+            await client.from("agendamentos").delete().eq("id", item.id);
             carregarAgendamentos();
             atualizarQuadro();
           }
@@ -195,26 +203,26 @@ async function carregarAgendamentos(){
       } else if(tipoUsuario==="admin"){
         const btnExcluir = document.createElement("button");
         btnExcluir.classList.add("btn-action","btn-excluir");
-        btnExcluir.title="Excluir";
-        btnExcluir.innerHTML="🗑️";
-        btnExcluir.addEventListener("click", async()=>{
+        btnExcluir.title = "Excluir";
+        btnExcluir.innerHTML = "🗑️";
+        btnExcluir.addEventListener("click", async () => {
           if(confirm("Deseja apagar?")){
-            await client.from("agendamentos").delete().eq("id",item.id);
+            await client.from("agendamentos").delete().eq("id", item.id);
             carregarAgendamentos();
           }
         });
 
         const btnEditar = document.createElement("button");
         btnEditar.classList.add("btn-action","btn-editar");
-        btnEditar.title="Editar";
-        btnEditar.innerHTML="✏️";
-        btnEditar.addEventListener("click", async()=>{
+        btnEditar.title = "Editar";
+        btnEditar.innerHTML = "✏️";
+        btnEditar.addEventListener("click", async () => {
           const diaStr = item.horario.split("T")[0];
           const { data: agendamentosDia } = await client.from("agendamentos").select("*")
             .gte("horario", diaStr+"T00:00")
             .lt("horario", diaStr+"T23:59");
 
-          const ocupados = agendamentosDia.map(a=>({hora:new Date(a.horario).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit', hour12:false}), id:a.id}));
+          const ocupados = agendamentosDia.map(a=>({hora:new Date(a.horario).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit', hour12:false}), id: a.id}));
 
           let novoHorario = null;
           while(!novoHorario){
@@ -226,10 +234,10 @@ async function carregarAgendamentos(){
           }
 
           if(novoHorario){
-            const [ano,mes,dia] = diaStr.split("-");
-            const [hora,min] = novoHorario.split(":");
-            const dtLocal = new Date(ano,mes-1,dia,hora,min,0);
-            await client.from("agendamentos").update({horario: dtLocal.toISOString().slice(0,19)}).eq("id",item.id);
+            const [ano, mes, dia] = diaStr.split("-");
+            const [hora, min] = novoHorario.split(":");
+            const dtLocal = new Date(ano, mes-1, dia, hora, min, 0);
+            await client.from("agendamentos").update({ horario: dtLocal.toISOString().slice(0,19) }).eq("id", item.id);
             carregarAgendamentos();
           }
         });
