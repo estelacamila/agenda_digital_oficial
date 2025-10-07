@@ -126,14 +126,45 @@
   }
 
   /* ===================== MEDIA QUERIES ===================== */
-  @media (max-width: 480px){
-    .login-container { width: 95%; padding: 25px 20px; }
-    .login-container h2 { font-size: 1.5rem; }
-    .tab-btns button { padding: 8px 0; font-size: 0.9rem; margin: 0 3px; }
-    .input-icon input { padding: 12px 40px 12px 12px; font-size: 0.95rem; }
-    .login-btn { padding: 12px; font-size: 0.95rem; }
-    .avatar { font-size: 60px; width: 80px; height: 80px; }
-  }
+ 
+  /* ===== Estilo base ===== */
+.login-container { width: 350px; padding: 40px 35px; }
+.login-container h2 { font-size: 1.8rem; }
+.tab-btns button { padding: 10px 0; font-size: 1rem; margin: 0 5px; }
+.input-icon input { padding: 14px 45px 14px 15px; font-size: 1rem; }
+.login-btn { padding: 14px; font-size: 1rem; }
+.avatar { font-size: 80px; width: 100px; height: 100px; }
+
+/* ===== Tablet ===== */
+@media (max-width: 768px) and (min-width: 481px) {
+  .login-container { width: 90%; padding: 30px 25px; }
+  .login-container h2 { font-size: 1.6rem; }
+  .tab-btns button { padding: 9px 0; font-size: 0.95rem; margin: 0 4px; }
+  .input-icon input { padding: 13px 40px 13px 12px; font-size: 0.95rem; }
+  .login-btn { padding: 13px; font-size: 0.95rem; }
+  .avatar { font-size: 70px; width: 90px; height: 90px; }
+}
+
+/* ===== Celular grande ===== */
+@media (max-width: 480px) and (min-width: 361px) {
+  .login-container { width: 95%; padding: 25px 20px; }
+  .login-container h2 { font-size: 1.5rem; }
+  .tab-btns button { padding: 8px 0; font-size: 0.9rem; margin: 0 3px; }
+  .input-icon input { padding: 12px 40px 12px 12px; font-size: 0.95rem; }
+  .login-btn { padding: 12px; font-size: 0.95rem; }
+  .avatar { font-size: 60px; width: 80px; height: 80px; }
+}
+
+/* ===== Celular pequeno ===== */
+@media (max-width: 360px) {
+  .login-container { width: 100%; padding: 20px 15px; }
+  .login-container h2 { font-size: 1.3rem; }
+  .tab-btns button { padding: 7px 0; font-size: 0.85rem; margin: 0 2px; }
+  .input-icon input { padding: 10px 35px 10px 10px; font-size: 0.9rem; }
+  .login-btn { padding: 10px; font-size: 0.9rem; }
+  .avatar { font-size: 50px; width: 70px; height: 70px; }
+}
+
 </style>
 </head>
 <body>

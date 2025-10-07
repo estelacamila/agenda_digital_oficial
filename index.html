@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <title>📅 Agenda Digital</title>
 <script src="https://unpkg.com/@supabase/supabase-js"></script>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <style>
   body { 
     background:#f0f2f5; 
@@ -18,7 +19,7 @@
     padding:25px 20px; 
     box-shadow:0 6px 25px rgba(0,0,0,0.1); 
     width:100%; 
-    max-width:450px; 
+    max-width:500px; 
   }
   h1 { text-align:center; margin-bottom:20px; color:#333; font-size:1.8rem; }
   label { display:block; margin-bottom:5px; font-weight:600; color:#333; }
@@ -52,28 +53,30 @@
 </style>
 </head>
 <body>
+
 <div class="container">
-<h1>📅 Agenda Digital</h1>
+  <h1>📅 Agenda Digital</h1>
 
-<form id="form-agenda">
-  <label for="nome">Nome do Cliente</label>
-  <input type="text" id="nome" readonly />
-  
-  <label for="data">Selecione uma data</label>
-  <input type="date" id="data" required placeholder="Selecione uma data" />
+  <!-- Formulário cliente -->
+  <form id="form-agenda">
+    <label for="nome">Nome do Cliente</label>
+    <input type="text" id="nome" readonly />
+    
+    <label for="data">Selecione uma data</label>
+    <input type="date" id="data" required placeholder="Selecione uma data" />
 
-  <input type="hidden" id="horario" required />
-  <div id="quadro-horarios"></div>
-  <button type="submit">Agendar</button>
-</form>
+    <input type="hidden" id="horario" required />
+    <div id="quadro-horarios"></div>
+    <button type="submit">Agendar</button>
+  </form>
 
-<h2>Agendamentos</h2>
-<ul id="lista"></ul>
+  <h2>Agendamentos</h2>
+  <ul id="lista"></ul>
 </div>
 
 <script>
 const SUPABASE_URL = "https://zlifgtznogdejoibzmpu.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpsaWZndHpub2dkZWpvaWJ6bXB1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkzNTQyMTgsImV4cCI6MjA3NDkzMDIxOH0.Xn4SvzKEy5SPVuObgWJK6BbAzw5twCtUyrcO4sg9pPM"; // Substitua pela sua chave
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpsaWZndHpub2dkZWpvaWJ6bXB1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkzNTQyMTgsImV4cCI6MjA3NDkzMDIxOH0.Xn4SvzKEy5SPVuObgWJK6BbAzw5twCtUyrcO4sg9pPM";
 const { createClient } = supabase;
 const client = createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -163,14 +166,6 @@ form.addEventListener("submit", async (e)=>{
 
   alert("Agendamento criado!");
 
-  // WhatsApp
-  const numeroDona = "5511999999999"; // insira número da dona
-  const diaStr = dtLocal.toLocaleDateString('pt-BR');
-  const horaStr = dtLocal.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit', hour12:false});
-  const mensagem = `Olá! Sou ${nome} e acabei de agendar meu horário no site para o dia ${diaStr} às ${horaStr}.`;
-  const linkWhats = `https://wa.me/${numeroDona}?text=${encodeURIComponent(mensagem)}`;
-  window.open(linkWhats,"_blank");
-
   form.reset();
   horarioSelecionado=null;
   horarioInput.value="";
@@ -197,7 +192,42 @@ async function carregarAgendamentos(){
       }
       const li = document.createElement("li");
       li.classList.add("horario-item");
-      li.innerHTML=`<span>${item.nome_cliente}</span> - ${horaStr} - [${item.status || 'pendente'}]`;
+
+      const span = document.createElement("span");
+      span.textContent = `${item.nome_cliente} - ${horaStr} - [${item.status || 'pendente'}]`;
+      li.appendChild(span);
+
+      if(tipoUsuario==="admin"){
+        // Botão editar
+        const btnEditar = document.createElement("button");
+        btnEditar.classList.add("btn-action","btn-editar");
+        btnEditar.title="Editar";
+        btnEditar.innerHTML="✏️";
+        btnEditar.addEventListener("click", ()=>{
+          const novoNome = prompt("Digite o novo nome:", item.nome_cliente);
+          if(novoNome){
+            client.from("agendamentos").update({nome_cliente:novoNome})
+              .eq("id", item.id)
+              .then(()=>carregarAgendamentos());
+          }
+        });
+
+        // Botão excluir
+        const btnExcluir = document.createElement("button");
+        btnExcluir.classList.add("btn-action","btn-excluir");
+        btnExcluir.title="Excluir";
+        btnExcluir.innerHTML="🗑️";
+        btnExcluir.addEventListener("click", ()=>{
+          if(confirm(`Deseja excluir o agendamento de ${item.nome_cliente}?`)){
+            client.from("agendamentos").delete()
+              .eq("id", item.id)
+              .then(()=>carregarAgendamentos());
+          }
+        });
+
+        li.appendChild(btnEditar);
+        li.appendChild(btnExcluir);
+      }
 
       lista.appendChild(li);
     });
